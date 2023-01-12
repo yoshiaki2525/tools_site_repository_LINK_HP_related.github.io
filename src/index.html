@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="ここにページの概要が入ります。">
+
+        <title>自動リンク変換のテスト</title>
+    <body>
+
+        <form action="" onsubmit="return false">
+            <textarea name="" id="text" cols="30" rows="10"></textarea>
+            <input type="submit" name="" id="" onclick="AutoLink()">
+        </form>
+
+        <p>結果</p>
+        <div id="result"></div>
+
+　　　<script>
+        function AutoLink() {
+        var str = document.getElementById('text').value
+        var regexp_url = /((h?)(ttps?:\/\/[a-zA-Z0-9.\-_@:/~?%&;=+#',()*!]+))/g; // ']))/;正規表現（/〜/）を解釈してくれないエディタ等で自動整形を崩さないため。
+        var regexp_makeLink = function(all, url, h, href) {
+        return '<a href="h' + href + '" target="_blank">' + url + '</a>';
+        }
+        var textWithLink = str.replace(regexp_url, regexp_makeLink);
+        document.getElementById('result').innerHTML = textWithLink
+        }
+    </script>
+
+    </body>
+</html>
