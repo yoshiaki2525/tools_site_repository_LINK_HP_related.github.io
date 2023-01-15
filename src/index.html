@@ -6,26 +6,97 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="description" content="ここにページの概要が入ります。">
 
-        <title>自動リンク変換のテスト</title>
+        <title>リンクHP管理を便利にするツールサイト</title>
     <body>
-
+        <!-- 詳細貼り付けフォーム（入力先） -->
+        <p>改行をbrタグおよびpタグへ変換、URLをリンクに変換するツール</p>
+        <input type="button" value="クリア" onclick="CLEAR_TEXTAREA()" />
         <form action="" onsubmit="return false">
             <textarea name="" id="text" cols="30" rows="10"></textarea>
-            <input type="submit" name="" id="" onclick="AutoLink()">
         </form>
+        <input type="submit" value="タグをつける" name="" id="" onclick="REPLACE_LINE_BREAKS_TO_BR_TAG_OR_P_TAG_AND_URL_WITHOUT_A_TAG_TO_LINK_WITH_A_TAG()">
 
-        <p>結果</p>
-        <div id="result"></div>
-
+        <!-- 加工した詳細貼り付けフォーム（出力先） -->
+        <!-- <div id="resultHTML"></div> -->
+        <p>加工後</p>
+        <button onclick="TEXT_SELECT()">テキストを全選択</button>
+        <form action="" onsubmit="return false">
+            <textarea id="result" name="" cols="30" rows="10" value="コピー対象の文言" readonly></textarea>
+        </form>
+        <p>実際の見え方</p>
+        <div id="resultHTML"></div>
 　　　<script>
-        function AutoLink() {
-        var str = document.getElementById('text').value
-        var regexp_url = /((h?)(ttps?:\/\/[a-zA-Z0-9.\-_@:/~?%&;=+#',()*!]+))/g; // ']))/;正規表現（/〜/）を解釈してくれないエディタ等で自動整形を崩さないため。
-        var regexp_makeLink = function(all, url, h, href) {
-        return '<a href="h' + href + '" target="_blank">' + url + '</a>';
+        //引数で受け取ったテキスト内の改行をbrタグおよびpタグへ変換する関数
+        function REPLACE_LINE_BREAKS_TO_BR_TAG_OR_P_TAG(textData) {
+            const p = "</p><p>";
+            //文字列texの改行をbrタグおよびpタグへ変換
+
+            //テキスト全体をpタグで囲む為にテキストの文頭にpタグを付加
+            textData = "<p>\n" + textData;
+
+            // すべての改行文字をbrタグに変換
+            textData = textData.replace(/\r\n/g, "<br />");
+            textData = textData.replace(/(\n|\r)/g, "<br />");
+
+            // ２個以上連続する<br />をpタグに変換。
+            // ただし、"\n"+p+"\n"の"p"は最初に定義した変数です。
+            textData = textData.replace(/(<br \/>){2,}/g, "\n"+p+"\n");
+
+            //見た目を整える等の微調整
+            //コード側から見やすくするために<br>の後に改行文字を入れる
+            textData = textData.replace(/<br \/>/g, "<br />\n");
+
+            //テキスト全体をpタグで囲む為にテキストの末尾にもpタグを付加
+            textData += "</p>";
+
+            //予期せぬ実行等の微調整
+            // たまに 〜</p><p></p> と何もない段落が出来てしまう場合があるのでそれを削除
+            textData = textData.replace(/<p>(\r\n|\n|\r}\b)*<\/p>/g, "");
+
+            // pタグの直後にbrタグが来る場合を修正
+            textData = textData.replace(/<p>(\r\n|\n|\r}\b)*<br \/>/g, "<p>");
+            const textDataVerPTagAndBrTag = textData
+
+            return textDataVerPTagAndBrTag;
+        };
+        // テキスト内からURLを見つけてaタグで囲む関数
+        function  REPLACE_URL_WITHOUT_A_TAG_TO_LINK_WITH_A_TAG(textData) {
+            const regexp_url = /((h?)(ttps?:\/\/[a-zA-Z0-9.\-_@:/~?%&;=+#',()*!]+))/g; // ']))/;正規表現（/〜/）を解釈してくれないエディタ等で自動整形を崩さないため。
+            const regexp_makeLink = function(all, url, h, href) {
+                return '<a href="h' + href + '" target="_blank" rel="noopener noreferrer">' + url + '</a>';
+            }
+            const textDataVerUrlToLink = textData.replace(regexp_url, regexp_makeLink);
+
+            return textDataVerUrlToLink
+        };
+        // 改行をbrタグおよびpタグへ変換する関数とURLを見つけてaタグで囲む関数を呼び出す関数
+        function REPLACE_LINE_BREAKS_TO_BR_TAG_OR_P_TAG_AND_URL_WITHOUT_A_TAG_TO_LINK_WITH_A_TAG () {
+            // alert('こんにちは')
+            const textData = document.getElementById('text').value
+            const textDataVerPTagAndBrTag = REPLACE_LINE_BREAKS_TO_BR_TAG_OR_P_TAG(textData)
+            const textDataVerPTagAndBrTagAndUrlToLink  = REPLACE_URL_WITHOUT_A_TAG_TO_LINK_WITH_A_TAG(textDataVerPTagAndBrTag)
+            document.getElementById('result').value = textDataVerPTagAndBrTagAndUrlToLink
+            document.getElementById('resultHTML').innerHTML = textDataVerPTagAndBrTagAndUrlToLink
         }
-        var textWithLink = str.replace(regexp_url, regexp_makeLink);
-        document.getElementById('result').innerHTML = textWithLink
+        function TEXT_SELECT() {
+            // alert('こんにちは')
+            // コピー対象をJavaScript上で変数として定義する
+            var copyTarget = document.getElementById("result");
+            // alert(copyTarget.value)
+
+            // コピー対象のテキストを選択する
+            copyTarget.select();
+
+            // 選択しているテキストをクリップボードにコピーする
+            // document.execCommand("Copy");
+
+            // コピーをお知らせする
+            // alert("コピーできました" );
+            // alert("コピーできました！ : " + copyTarget.value);
+        }
+        function CLEAR_TEXTAREA() {
+	        var textarea = document.getElementById("text");
+            textarea.value = '';
         }
     </script>
 
